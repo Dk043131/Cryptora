@@ -55,7 +55,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
-            buildConfigField("String", "BASE_URL", "\"https://api-dev.cryptora.app/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"https://cryptora-9zrj.onrender.com/v1/\"")
             buildConfigField("Boolean", "LOG_NETWORK_CALLS", "true")
             buildConfigField("Boolean", "SECURITY_VERIFICATION_STRICT", "false")
         }
@@ -67,7 +67,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"https://api.cryptora.app/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"https://cryptora-9zrj.onrender.com/v1/\"")
             buildConfigField("Boolean", "LOG_NETWORK_CALLS", "false")
             buildConfigField("Boolean", "SECURITY_VERIFICATION_STRICT", "true")
         }
