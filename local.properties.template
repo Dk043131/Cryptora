@@ -1,0 +1,4 @@
+## This file should not be checked into Version Control Systems.
+# Location of the SDK. This is only used by Gradle.
+# For example:
+# sdk.dir=/Users/username/Library/Android/sdk
