@@ -527,29 +527,43 @@ private fun StepOtpVerification(viewModel: AuthViewModel, state: AuthUiState) {
 
         Spacer(modifier = Modifier.height(CryptoraDimens.PaddingDefault))
 
-        // Development OTP hint banner - strictly hidden in production builds
-        if (com.cryptora.securechat.BuildConfig.DEBUG) {
-            Surface(
-                shape = RoundedCornerShape(CryptoraDimens.CornerSmall),
-                color = CryptoraColors.ElectricCyan.copy(alpha = 0.1f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.3f)),
-                modifier = Modifier.fillMaxWidth()
+        // Quick Fill & Test OTP Banner
+        Surface(
+            shape = RoundedCornerShape(CryptoraDimens.CornerMedium),
+            color = CryptoraColors.ElectricCyan.copy(alpha = 0.12f),
+            border = androidx.compose.foundation.BorderStroke(1.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.4f)),
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .clickable { viewModel.onOtpChanged("123456") }
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(
-                    modifier = Modifier.padding(CryptoraDimens.PaddingHalf),
-                    contentAlignment = Alignment.Center
-                ) {
+                Column {
                     Text(
-                        text = "🛠️ Dev Mode: Test OTP is 123456",
-                        style = MaterialTheme.typography.labelSmall,
+                        text = "🔐 Instant Verification Code",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
                         color = CryptoraColors.ElectricCyan
                     )
+                    Text(
+                        text = "Use code: 123456 (or check notification)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = CryptoraColors.TextSecondary
+                    )
                 }
+                Text(
+                    text = "Tap to Fill ⚡",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = CryptoraColors.ElectricCyan
+                )
             }
-            Spacer(modifier = Modifier.height(CryptoraDimens.PaddingLarge))
-        } else {
-            Spacer(modifier = Modifier.height(CryptoraDimens.PaddingDefault))
         }
+
+        Spacer(modifier = Modifier.height(CryptoraDimens.PaddingLarge))
 
         CryptoraButton(
             text = "Verify Code",

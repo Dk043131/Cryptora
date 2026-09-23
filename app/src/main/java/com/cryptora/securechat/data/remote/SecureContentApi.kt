@@ -2,6 +2,7 @@ package com.cryptora.securechat.data.remote
 
 import com.cryptora.securechat.core.network.AuthoritativeTimeManager
 import com.cryptora.securechat.core.network.NetworkResult
+import kotlinx.serialization.Serializable
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -21,6 +22,7 @@ data class ServerPolicyMetadata(
     val policyVersion: Int = 1
 )
 
+@Serializable
 data class AccessValidationResponse(
     val messageId: String,
     val isAuthorized: Boolean,
@@ -31,6 +33,7 @@ data class AccessValidationResponse(
     val activeGrantId: String? = null
 )
 
+@Serializable
 data class AccessRequestResponse(
     val requestId: String,
     val messageId: String,
@@ -39,6 +42,7 @@ data class AccessRequestResponse(
     val contentTitle: String
 )
 
+@Serializable
 data class AccessGrantResponse(
     val grantId: String,
     val requestId: String,
@@ -89,7 +93,8 @@ interface SecureContentApi {
 
 @Singleton
 class SecureContentApiImpl @Inject constructor(
-    private val timeManager: AuthoritativeTimeManager
+    private val timeManager: AuthoritativeTimeManager,
+    private val apiService: dagger.Lazy<CryptoraApiService>? = null
 ) : SecureContentApi {
 
     // Server-side authoritative policy metadata store (Server Trust Model: stores only policy metadata, never plaintext)
@@ -107,6 +112,24 @@ class SecureContentApiImpl @Inject constructor(
         serverPolicies[metadata.messageId] = metadata
         val serverTime = timeManager.getAuthoritativeTime()
         timeManager.updateServerTime(serverTime)
+
+        // Dispatch to live Render server if reachable
+        try {
+            apiService?.get()?.registerPolicy(
+                RegisterPolicyRequest(
+                    messageId = metadata.messageId,
+                    accessMode = metadata.accessMode,
+                    expiresAt = metadata.expiresAt,
+                    maxExpiresAt = metadata.maxExpiresAt,
+                    forwardingPolicy = metadata.forwardingPolicy,
+                    approvalRequired = metadata.approvalRequired,
+                    ownerId = metadata.ownerId
+                )
+            )
+        } catch (_: Exception) {
+            // Local resilient fallback maintains offline integrity
+        }
+
         return NetworkResult.Success(Unit, 201)
     }
 
@@ -400,6 +423,17 @@ class SecureContentApiImpl @Inject constructor(
     }
 
     override suspend fun syncAuthoritativeServerTime(): NetworkResult<Long> {
+        try {
+            val response = apiService?.get()?.getServerTime()
+            if (response != null && response.isSuccessful && response.body() != null) {
+                val serverTime = response.body()!!.serverTime
+                timeManager.updateServerTime(serverTime)
+                return NetworkResult.Success(serverTime, 200)
+            }
+        } catch (_: Exception) {
+            // Graceful fallback to hardware local clock during network reconnect
+        }
+
         val serverTime = System.currentTimeMillis()
         timeManager.updateServerTime(serverTime)
         return NetworkResult.Success(serverTime, 200)

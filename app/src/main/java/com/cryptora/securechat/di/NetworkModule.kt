@@ -62,5 +62,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideCryptoraApiService(retrofit: Retrofit): com.cryptora.securechat.data.remote.CryptoraApiService {
+        return retrofit.create(com.cryptora.securechat.data.remote.CryptoraApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideSecureContentApi(impl: com.cryptora.securechat.data.remote.SecureContentApiImpl): com.cryptora.securechat.data.remote.SecureContentApi = impl
 }

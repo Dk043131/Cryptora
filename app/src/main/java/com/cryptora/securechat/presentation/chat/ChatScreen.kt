@@ -36,6 +36,8 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -511,28 +513,28 @@ private fun ChatMessageItem(
         horizontalAlignment = alignment
     ) {
         val bubbleShape = if (isOutgoing) {
-            RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+            RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 2.dp)
         } else {
-            RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+            RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 2.dp, bottomEnd = 16.dp)
         }
 
         val bubbleBackground = when {
             isExpired -> CryptoraColors.CrimsonDanger.copy(alpha = 0.12f)
             isLocked -> CryptoraColors.SurfaceNavy
-            isOutgoing -> CryptoraColors.ElectricCyan.copy(alpha = 0.15f)
+            isOutgoing -> CryptoraColors.ElectricCyan.copy(alpha = 0.22f)
             else -> CryptoraColors.NavyCardBackground
         }
 
         val bubbleBorder = when {
             isExpired -> CryptoraColors.CrimsonDanger.copy(alpha = 0.5f)
             isLocked -> CryptoraColors.AmberWarning.copy(alpha = 0.5f)
-            isOutgoing -> CryptoraColors.ElectricCyan.copy(alpha = 0.4f)
+            isOutgoing -> CryptoraColors.ElectricCyan.copy(alpha = 0.45f)
             else -> CryptoraColors.BorderSubtle
         }
 
         Box(
             modifier = Modifier
-                .widthIn(max = 310.dp)
+                .widthIn(min = 72.dp, max = 295.dp)
                 .clip(bubbleShape)
                 .combinedClickable(
                     onClick = { /* Message tapped */ },
@@ -540,7 +542,7 @@ private fun ChatMessageItem(
                 )
                 .background(bubbleBackground)
                 .border(1.dp, bubbleBorder, bubbleShape)
-                .padding(12.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
             Column {
                 if (message.isForwarded) {
@@ -768,64 +770,38 @@ private fun ChatMessageItem(
                             color = CryptoraColors.TextPrimary,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                     }
-                }
 
-                // Footer: Forward Chain Badge + Forward Action + Timestamp + Delivery State
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    // Compact Metadata Footer aligned to the bottom-end
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         if (message.isForwarded) {
-                            Surface(
-                                onClick = onOpenForwardHistory,
-                                shape = RoundedCornerShape(4.dp),
-                                color = CryptoraColors.DeepNavyBackground.copy(alpha = 0.7f),
-                                border = BorderStroke(1.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.4f)),
-                                modifier = Modifier.padding(end = 4.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "🔗 ${maxOf(1, message.forwardCount)}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = CryptoraColors.ElectricCyan
-                                    )
-                                }
-                            }
-                        }
-
-                        IconButton(
-                            onClick = onForwardClick,
-                            modifier = Modifier.size(22.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Forward Securely",
-                                tint = CryptoraColors.TextMuted,
-                                modifier = Modifier.size(12.dp)
+                            Text(
+                                text = "🔗 ${maxOf(1, message.forwardCount)}",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = CryptoraColors.ElectricCyan,
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .clickable { onOpenForwardHistory() }
                             )
                         }
-                    }
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = formatTimestamp(message.timestamp),
                             style = MaterialTheme.typography.labelSmall,
                             color = CryptoraColors.TextMuted,
-                            fontSize = 11.sp
+                            fontSize = 10.sp
                         )
 
                         if (isOutgoing) {
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             DeliveryStatusIndicator(
                                 status = message.deliveryStatus,
                                 onRetry = onRetry
@@ -899,36 +875,36 @@ private fun DeliveryStatusIndicator(
     when (status) {
         MessageDeliveryStatus.SENDING -> {
             CircularProgressIndicator(
-                modifier = Modifier.size(12.dp),
+                modifier = Modifier.size(11.dp),
                 color = CryptoraColors.TextMuted,
-                strokeWidth = 1.5.dp
+                strokeWidth = 1.2.dp
             )
         }
         MessageDeliveryStatus.SENT -> {
-            // Sent indicator: 🔒
+            // Sent indicator: Single Check ✓
             Icon(
-                imageVector = Icons.Default.Lock,
+                imageVector = Icons.Default.Done,
                 contentDescription = "Sent",
                 tint = CryptoraColors.TextMuted,
                 modifier = Modifier.size(13.dp)
             )
         }
         MessageDeliveryStatus.DELIVERED -> {
-            // Delivered indicator: 🔓 (Red/Amber)
+            // Delivered indicator: Double Check ✓✓ (Muted)
             Icon(
-                imageVector = Icons.Default.LockOpen,
+                imageVector = Icons.Default.DoneAll,
                 contentDescription = "Delivered",
-                tint = CryptoraColors.AmberWarning,
-                modifier = Modifier.size(13.dp)
+                tint = CryptoraColors.TextMuted,
+                modifier = Modifier.size(14.dp)
             )
         }
         MessageDeliveryStatus.READ -> {
-            // Read indicator: 🔓 (Green)
+            // Read indicator: Double Check ✓✓ (Electric Cyan)
             Icon(
-                imageVector = Icons.Default.LockOpen,
+                imageVector = Icons.Default.DoneAll,
                 contentDescription = "Read",
-                tint = CryptoraColors.EmeraldSafe,
-                modifier = Modifier.size(13.dp)
+                tint = CryptoraColors.ElectricCyan,
+                modifier = Modifier.size(14.dp)
             )
         }
         MessageDeliveryStatus.FAILED -> {
