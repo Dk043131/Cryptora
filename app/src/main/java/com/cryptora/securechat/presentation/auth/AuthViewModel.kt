@@ -132,13 +132,17 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch(dispatchers.io) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = loginUserUseCase(username, password)
-            result.onSuccess {
-                _uiState.update { it.copy(isLoading = false) }
-                navigator.popUpTo(Screen.Auth.route, inclusive = true)
-                navigator.navigateTo(Screen.Home.route)
-            }.onError { error, _ ->
-                _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+            try {
+                val result = loginUserUseCase(username, password)
+                result.onSuccess {
+                    _uiState.update { it.copy(isLoading = false) }
+                    navigator.popUpTo(Screen.Auth.route, inclusive = true)
+                    navigator.navigateTo(Screen.Home.route)
+                }.onError { error, _ ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "Sign in failed. Please retry.") }
             }
         }
     }
@@ -154,17 +158,21 @@ class AuthViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 usernameInput = clean,
-                isUsernameAvailable = null,
-                errorMessage = null
+                errorMessage = null,
+                isUsernameAvailable = null
             )
         }
-        if (clean.length >= 3) {
-            checkUsernameAvailability(clean)
-        }
+        checkUsernameDebounced(clean)
     }
 
-    private fun checkUsernameAvailability(username: String) {
-        viewModelScope.launch(dispatchers.io) {
+    private var usernameCheckJob: Job? = null
+
+    private fun checkUsernameDebounced(username: String) {
+        usernameCheckJob?.cancel()
+        if (username.length < 3) return
+
+        usernameCheckJob = viewModelScope.launch(dispatchers.io) {
+            delay(400)
             _uiState.update { it.copy(isCheckingUsername = true) }
             val result = checkUsernameAvailabilityUseCase(username)
             result.onSuccess { available ->
@@ -223,19 +231,23 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch(dispatchers.io) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = sendOtpUseCase(mobile, country)
-            result.onSuccess { sessionId ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        otpSessionId = sessionId,
-                        registerStep = RegisterStep.OTP_VERIFICATION,
-                        otpInput = ""
-                    )
+            try {
+                val result = sendOtpUseCase(mobile, country)
+                result.onSuccess { sessionId ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            otpSessionId = sessionId,
+                            registerStep = RegisterStep.OTP_VERIFICATION,
+                            otpInput = ""
+                        )
+                    }
+                    startOtpCountdown()
+                }.onError { error, _ ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
                 }
-                startOtpCountdown()
-            }.onError { error, _ ->
-                _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "Failed to dispatch verification code.") }
             }
         }
     }
@@ -266,18 +278,22 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch(dispatchers.io) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val result = verifyOtpUseCase(sessionId, otp)
-            result.onSuccess {
-                countdownJob?.cancel()
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        registerStep = RegisterStep.PASSWORD_CREATION,
-                        errorMessage = null
-                    )
+            try {
+                val result = verifyOtpUseCase(sessionId, otp)
+                result.onSuccess {
+                    countdownJob?.cancel()
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            registerStep = RegisterStep.PASSWORD_CREATION,
+                            errorMessage = null
+                        )
+                    }
+                }.onError { error, _ ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
                 }
-            }.onError { error, _ ->
-                _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "Verification failed.") }
             }
         }
     }
@@ -345,22 +361,25 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch(dispatchers.io) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                val result = registerUserUseCase(
+                    fullName = state.fullNameInput,
+                    username = state.usernameInput,
+                    mobileNumber = fullMobile,
+                    password = state.passwordInput,
+                    avatarUrl = state.selectedAvatar,
+                    bio = state.bioInput
+                )
 
-            val result = registerUserUseCase(
-                fullName = state.fullNameInput,
-                username = state.usernameInput,
-                mobileNumber = fullMobile,
-                password = state.passwordInput,
-                avatarUrl = state.selectedAvatar,
-                bio = state.bioInput
-            )
-
-            result.onSuccess {
-                _uiState.update { it.copy(isLoading = false) }
-                navigator.popUpTo(Screen.Auth.route, inclusive = true)
-                navigator.navigateTo(Screen.Home.route)
-            }.onError { error, _ ->
-                _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+                result.onSuccess {
+                    _uiState.update { it.copy(isLoading = false) }
+                    navigator.popUpTo(Screen.Auth.route, inclusive = true)
+                    navigator.navigateTo(Screen.Home.route)
+                }.onError { error, _ ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = error.message) }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "Registration failed.") }
             }
         }
     }

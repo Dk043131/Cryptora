@@ -381,23 +381,36 @@ fun CryptoraCard(
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val clickableModifier = if (onClick != null) {
-        Modifier.clickable(onClick = onClick)
+    if (onClick != null) {
+        Surface(
+            onClick = onClick,
+            modifier = modifier.fillMaxWidth(),
+            shape = shape,
+            color = backgroundColor,
+            border = BorderStroke(1.dp, borderColor)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(contentPadding)
+            ) {
+                content()
+            }
+        }
     } else {
-        Modifier
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .then(clickableModifier)
-            .background(backgroundColor)
-            .border(BorderStroke(1.dp, borderColor), shape)
-            .padding(contentPadding)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            content()
+        Surface(
+            modifier = modifier.fillMaxWidth(),
+            shape = shape,
+            color = backgroundColor,
+            border = BorderStroke(1.dp, borderColor)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(contentPadding)
+            ) {
+                content()
+            }
         }
     }
 }

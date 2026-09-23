@@ -49,6 +49,9 @@ class DemoDataSeeder @Inject constructor(
     private suspend fun seedAccounts() {
         val demoUsers = listOf(
             Triple("deepak", "Deepak Kumar", "+919952145182"),
+            Triple("dk", "DK", "+919952145180"),
+            Triple("sarumathy", "Sarumathy", "+919952145181"),
+            Triple("karthiga", "Karthiga", "+919952145183"),
             Triple("alex_rivera", "Alex Rivera", "+15551234567"),
             Triple("harshanth", "Harshanth", "+919876543210")
         )
@@ -64,8 +67,20 @@ class DemoDataSeeder @Inject constructor(
                     mobileNumber = mobile,
                     passwordSaltedHash = saltedHash,
                     publicKey = "pk_cryptora_${username}_demo",
-                    avatarUrl = if (username == "deepak") "🛡️" else if (username == "harshanth") "⚡" else "👤",
-                    bio = "Cryptora Secure Enclave User • E2EE Verified",
+                    avatarUrl = when (username) {
+                        "deepak" -> "🛡️"
+                        "dk" -> "⚡"
+                        "sarumathy" -> "🌸"
+                        "karthiga" -> "🌟"
+                        "harshanth" -> "⚡"
+                        else -> "👤"
+                    },
+                    bio = when (username) {
+                        "dk" -> "Cryptora Core Architecture • Enclave Lead"
+                        "sarumathy" -> "Hardware Security Specialist • AES-GCM"
+                        "karthiga" -> "Quantum Key Distribution Contributor"
+                        else -> "Cryptora Secure Enclave User • E2EE Verified"
+                    },
                     createdAt = System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000
                 )
                 secureStorage.saveString(key, json.encodeToString(account))
@@ -122,140 +137,284 @@ class DemoDataSeeder @Inject constructor(
     }
 
     private suspend fun seedConversationsAndMessages() {
-        val existing = database.conversationDao().getConversationsFlow().firstOrNull() ?: emptyList()
-        if (existing.isNotEmpty()) return
-
         val now = System.currentTimeMillis()
         keyManager.getOrCreateMasterKey(Constants.MASTER_KEY_ALIAS)
 
-        // 1. Conversation with Harshanth
+        // 1. Conversation with DK
+        val convDkId = "conv_demo_dk"
+        if (database.conversationDao().getConversationById(convDkId) == null) {
+            database.conversationDao().insertOrUpdate(
+                ConversationEntity(
+                    id = convDkId,
+                    participantUserId = "usr_dk_01",
+                    participantUsername = "dk",
+                    participantFullName = "DK",
+                    lastMessageText = "Received encrypted bundle. Will review and verify on hardware keystore.",
+                    lastMessageTimestamp = now - 5 * 60 * 1000L,
+                    lastMessageDeliveryStatus = "READ",
+                    unreadCount = 1,
+                    isSecretSession = true,
+                    updatedAt = now - 5 * 60 * 1000L
+                )
+            )
+
+            val dkMessages = listOf(
+                MessageSeed(
+                    id = "msg_dk_1",
+                    text = "Hey DK, I verified the hardware enclave encryption and real-time OTP delivery.",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 60 * 60000L
+                ),
+                MessageSeed(
+                    id = "msg_dk_2",
+                    text = "Awesome Deepak! The Post-Quantum key exchange and timelock channels are rock solid.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 40 * 60000L
+                ),
+                MessageSeed(
+                    id = "msg_dk_3",
+                    text = "Shared the enclave master bypass credentials with a 1-hour timelock.",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 20 * 60000L,
+                    accessMode = "TIMELOCKED_ACCESS",
+                    expiresAt = now + 3600000L
+                ),
+                MessageSeed(
+                    id = "msg_dk_4",
+                    text = "Received encrypted bundle. Will review and verify on hardware keystore.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 5 * 60000L
+                )
+            )
+            insertMessages(convDkId, "usr_dk_01", dkMessages)
+        }
+
+        // 2. Conversation with Sarumathy
+        val convSarumathyId = "conv_demo_sarumathy"
+        if (database.conversationDao().getConversationById(convSarumathyId) == null) {
+            database.conversationDao().insertOrUpdate(
+                ConversationEntity(
+                    id = convSarumathyId,
+                    participantUserId = "usr_sarumathy_02",
+                    participantUsername = "sarumathy",
+                    participantFullName = "Sarumathy",
+                    lastMessageText = "Yes, verified! Zero plaintext traces left in memory or SQLite database.",
+                    lastMessageTimestamp = now - 12 * 60 * 1000L,
+                    lastMessageDeliveryStatus = "READ",
+                    unreadCount = 0,
+                    isSecretSession = true,
+                    updatedAt = now - 12 * 60 * 1000L
+                )
+            )
+
+            val sarumathyMessages = listOf(
+                MessageSeed(
+                    id = "msg_s_1",
+                    text = "Hi Deepak, security audit for hardware keystore passes all zero-knowledge constraints.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 90 * 60000L
+                ),
+                MessageSeed(
+                    id = "msg_s_2",
+                    text = "Great work Sarumathy! Did you test forward secrecy on ephemeral ratchets?",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 45 * 60000L
+                ),
+                MessageSeed(
+                    id = "msg_s_3",
+                    text = "Yes, verified! Zero plaintext traces left in memory or SQLite database.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 12 * 60000L
+                )
+            )
+            insertMessages(convSarumathyId, "usr_sarumathy_02", sarumathyMessages)
+        }
+
+        // 3. Conversation with Karthiga
+        val convKarthigaId = "conv_demo_karthiga"
+        if (database.conversationDao().getConversationById(convKarthigaId) == null) {
+            database.conversationDao().insertOrUpdate(
+                ConversationEntity(
+                    id = convKarthigaId,
+                    participantUserId = "usr_karthiga_03",
+                    participantUsername = "karthiga",
+                    participantFullName = "Karthiga",
+                    lastMessageText = "Everything is verified. Ready for deployment!",
+                    lastMessageTimestamp = now - 25 * 60 * 1000L,
+                    lastMessageDeliveryStatus = "READ",
+                    unreadCount = 0,
+                    isSecretSession = true,
+                    updatedAt = now - 25 * 60 * 1000L
+                )
+            )
+
+            val karthigaMessages = listOf(
+                MessageSeed(
+                    id = "msg_k_1",
+                    text = "Hey Deepak, Quantum Key Distribution simulation is fully linked with the server relay.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 120 * 60000L
+                ),
+                MessageSeed(
+                    id = "msg_k_2",
+                    text = "Superb Karthiga. The UI animations and secure access requests are flowing properly now.",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 50 * 60000L
+                ),
+                MessageSeed(
+                    id = "msg_k_3",
+                    text = "Everything is verified. Ready for deployment!",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 25 * 60000L
+                )
+            )
+            insertMessages(convKarthigaId, "usr_karthiga_03", karthigaMessages)
+        }
+
+        // 4. Conversation with Harshanth
         val convHarshanthId = "conv_demo_harshanth"
-        database.conversationDao().insertOrUpdate(
-            ConversationEntity(
-                id = convHarshanthId,
-                participantUserId = "usr_harshanth_01",
-                participantUsername = "harshanth",
-                participantFullName = "Harshanth",
-                lastMessageText = "Got it! Access grant requested. Awaiting enclave authorization.",
-                lastMessageTimestamp = now - 15 * 60 * 1000L,
-                lastMessageDeliveryStatus = "READ",
-                unreadCount = 1,
-                isSecretSession = true,
-                updatedAt = now - 15 * 60 * 1000L
+        if (database.conversationDao().getConversationById(convHarshanthId) == null) {
+            database.conversationDao().insertOrUpdate(
+                ConversationEntity(
+                    id = convHarshanthId,
+                    participantUserId = "usr_harshanth_01",
+                    participantUsername = "harshanth",
+                    participantFullName = "Harshanth",
+                    lastMessageText = "Got it! Access grant requested. Awaiting enclave authorization.",
+                    lastMessageTimestamp = now - 35 * 60 * 1000L,
+                    lastMessageDeliveryStatus = "READ",
+                    unreadCount = 1,
+                    isSecretSession = true,
+                    updatedAt = now - 35 * 60 * 1000L
+                )
             )
-        )
 
-        val harshanthMessages = listOf(
-            MessageSeed(
-                id = "msg_h_1",
-                text = "Hey Harshanth, did you review the updated zero-knowledge time-lock policy?",
-                isOutgoing = true,
-                status = "READ",
-                timestamp = now - 2 * 3600000L
-            ),
-            MessageSeed(
-                id = "msg_h_2",
-                text = "Yes! The hardware-enforced enclave looks rock solid. Encrypted payloads are decrypting within 4ms.",
-                isOutgoing = false,
-                status = "READ",
-                timestamp = now - 3600000L
-            ),
-            MessageSeed(
-                id = "msg_h_3",
-                text = "Awesome. I'm setting a 1-hour time-lock on the deployment credentials.",
-                isOutgoing = true,
-                status = "READ",
-                timestamp = now - 30 * 60000L,
-                accessMode = "TIMELOCKED_ACCESS",
-                expiresAt = now + 3600000L
-            ),
-            MessageSeed(
-                id = "msg_h_4",
-                text = "Got it! Access grant requested. Awaiting enclave authorization.",
-                isOutgoing = false,
-                status = "READ",
-                timestamp = now - 15 * 60000L
+            val harshanthMessages = listOf(
+                MessageSeed(
+                    id = "msg_h_1",
+                    text = "Hey Harshanth, did you review the updated zero-knowledge time-lock policy?",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 3 * 3600000L
+                ),
+                MessageSeed(
+                    id = "msg_h_2",
+                    text = "Yes! The hardware-enforced enclave looks rock solid. Encrypted payloads are decrypting within 4ms.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 2 * 3600000L
+                ),
+                MessageSeed(
+                    id = "msg_h_3",
+                    text = "Awesome. I'm setting a 1-hour time-lock on the deployment credentials.",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 60 * 60000L,
+                    accessMode = "TIMELOCKED_ACCESS",
+                    expiresAt = now + 3600000L
+                ),
+                MessageSeed(
+                    id = "msg_h_4",
+                    text = "Got it! Access grant requested. Awaiting enclave authorization.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 35 * 60000L
+                )
             )
-        )
-        insertMessages(convHarshanthId, "usr_harshanth_01", harshanthMessages)
+            insertMessages(convHarshanthId, "usr_harshanth_01", harshanthMessages)
+        }
 
-        // 2. Conversation with Elena Rostova
+        // 5. Conversation with Elena Rostova
         val convElenaId = "conv_demo_elena"
-        database.conversationDao().insertOrUpdate(
-            ConversationEntity(
-                id = convElenaId,
-                participantUserId = "usr_elena_03",
-                participantUsername = "elena_k",
-                participantFullName = "Elena Rostova",
-                lastMessageText = "All enclave checks passed 100%. No memory leaks or plaintext traces detected.",
-                lastMessageTimestamp = now - 45 * 60 * 1000L,
-                lastMessageDeliveryStatus = "READ",
-                unreadCount = 0,
-                isSecretSession = true,
-                updatedAt = now - 45 * 60 * 1000L
+        if (database.conversationDao().getConversationById(convElenaId) == null) {
+            database.conversationDao().insertOrUpdate(
+                ConversationEntity(
+                    id = convElenaId,
+                    participantUserId = "usr_elena_03",
+                    participantUsername = "elena_k",
+                    participantFullName = "Elena Rostova",
+                    lastMessageText = "All enclave checks passed 100%. No memory leaks or plaintext traces detected.",
+                    lastMessageTimestamp = now - 45 * 60 * 1000L,
+                    lastMessageDeliveryStatus = "READ",
+                    unreadCount = 0,
+                    isSecretSession = true,
+                    updatedAt = now - 45 * 60 * 1000L
+                )
             )
-        )
 
-        val elenaMessages = listOf(
-            MessageSeed(
-                id = "msg_e_1",
-                text = "Here is the confidential security audit log for Q3.",
-                isOutgoing = false,
-                status = "READ",
-                timestamp = now - 3 * 3600000L,
-                forwardingPolicy = "FORWARDING_DISABLED"
-            ),
-            MessageSeed(
-                id = "msg_e_2",
-                text = "Verified the cryptographic signature against the hardware root of trust.",
-                isOutgoing = true,
-                status = "READ",
-                timestamp = now - 2 * 3600000L
-            ),
-            MessageSeed(
-                id = "msg_e_3",
-                text = "All enclave checks passed 100%. No memory leaks or plaintext traces detected.",
-                isOutgoing = false,
-                status = "READ",
-                timestamp = now - 45 * 60000L
+            val elenaMessages = listOf(
+                MessageSeed(
+                    id = "msg_e_1",
+                    text = "Here is the confidential security audit log for Q3.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 3 * 3600000L,
+                    forwardingPolicy = "FORWARDING_DISABLED"
+                ),
+                MessageSeed(
+                    id = "msg_e_2",
+                    text = "Verified the cryptographic signature against the hardware root of trust.",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 2 * 3600000L
+                ),
+                MessageSeed(
+                    id = "msg_e_3",
+                    text = "All enclave checks passed 100%. No memory leaks or plaintext traces detected.",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 45 * 60000L
+                )
             )
-        )
-        insertMessages(convElenaId, "usr_elena_03", elenaMessages)
+            insertMessages(convElenaId, "usr_elena_03", elenaMessages)
+        }
 
-        // 3. Conversation with Alex Rivera
+        // 6. Conversation with Alex Rivera
         val convAlexId = "conv_demo_alex"
-        database.conversationDao().insertOrUpdate(
-            ConversationEntity(
-                id = convAlexId,
-                participantUserId = "usr_alex_02",
-                participantUsername = "alex_rivera",
-                participantFullName = "Alex Rivera",
-                lastMessageText = "Approved access for 30 minutes.",
-                lastMessageTimestamp = now - 2 * 3600000L,
-                lastMessageDeliveryStatus = "READ",
-                unreadCount = 0,
-                isSecretSession = true,
-                updatedAt = now - 2 * 3600000L
+        if (database.conversationDao().getConversationById(convAlexId) == null) {
+            database.conversationDao().insertOrUpdate(
+                ConversationEntity(
+                    id = convAlexId,
+                    participantUserId = "usr_alex_02",
+                    participantUsername = "alex_rivera",
+                    participantFullName = "Alex Rivera",
+                    lastMessageText = "Approved access for 30 minutes.",
+                    lastMessageTimestamp = now - 2 * 3600000L,
+                    lastMessageDeliveryStatus = "READ",
+                    unreadCount = 0,
+                    isSecretSession = true,
+                    updatedAt = now - 2 * 3600000L
+                )
             )
-        )
 
-        val alexMessages = listOf(
-            MessageSeed(
-                id = "msg_a_1",
-                text = "Can you grant me temporary access to the relay policy registry?",
-                isOutgoing = false,
-                status = "READ",
-                timestamp = now - 4 * 3600000L
-            ),
-            MessageSeed(
-                id = "msg_a_2",
-                text = "Approved access for 30 minutes.",
-                isOutgoing = true,
-                status = "READ",
-                timestamp = now - 2 * 3600000L
+            val alexMessages = listOf(
+                MessageSeed(
+                    id = "msg_a_1",
+                    text = "Can you grant me temporary access to the relay policy registry?",
+                    isOutgoing = false,
+                    status = "READ",
+                    timestamp = now - 4 * 3600000L
+                ),
+                MessageSeed(
+                    id = "msg_a_2",
+                    text = "Approved access for 30 minutes.",
+                    isOutgoing = true,
+                    status = "READ",
+                    timestamp = now - 2 * 3600000L
+                )
             )
-        )
-        insertMessages(convAlexId, "usr_alex_02", alexMessages)
+            insertMessages(convAlexId, "usr_alex_02", alexMessages)
+        }
     }
 
     private data class MessageSeed(

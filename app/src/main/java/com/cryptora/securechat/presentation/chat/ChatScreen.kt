@@ -199,7 +199,8 @@ fun ChatScreen(
                             onAttachmentClick = { message.attachment?.let { viewModel.onPreviewAttachment(it) } },
                             onOpenForwardHistory = { viewModel.onOpenForwardHistory(message) },
                             onForwardClick = { viewModel.onOpenForwardDialog(message) },
-                            onLongClick = { viewModel.onMessageLongClick(message) }
+                            onLongClick = { viewModel.onMessageLongClick(message) },
+                            modifier = Modifier.animateItemPlacement()
                         )
                     }
                 }
@@ -498,7 +499,8 @@ private fun ChatMessageItem(
     onAttachmentClick: () -> Unit,
     onOpenForwardHistory: () -> Unit,
     onForwardClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val isOutgoing = message.isOutgoing
     val alignment = if (isOutgoing) Alignment.End else Alignment.Start
@@ -509,7 +511,7 @@ private fun ChatMessageItem(
     val remainingMillis = if (hasActiveCountdown) (message.policy.expiresAt!! - authoritativeTimeMillis).coerceAtLeast(0L) else 0L
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = alignment
     ) {
         val bubbleShape = if (isOutgoing) {

@@ -17,11 +17,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
@@ -30,6 +37,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -61,6 +69,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -268,6 +277,13 @@ fun HomeScreen(
                             }
                         },
                         actions = {
+                            IconButton(onClick = { showNotesSheet = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.Description,
+                                    contentDescription = "Encrypted Notes Vault",
+                                    tint = CryptoraColors.ElectricCyan
+                                )
+                            }
                             IconButton(onClick = { viewModel.onAccessRequestsClicked() }) {
                                 Icon(
                                     imageVector = Icons.Default.Notifications,
@@ -280,6 +296,21 @@ fun HomeScreen(
                             containerColor = CryptoraColors.DeepNavyBackground
                         )
                     )
+                },
+                floatingActionButton = {
+                    if (selectedTab == HomeTab.CHATS) {
+                        FloatingActionButton(
+                            onClick = { viewModel.selectTab(HomeTab.SEARCH) },
+                            containerColor = CryptoraColors.ElectricCyan,
+                            contentColor = CryptoraColors.DeepNavyBackground,
+                            shape = CircleShape
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "New Encrypted Chat"
+                            )
+                        }
+                    }
                 },
                 bottomBar = {
                     NavigationBar(
@@ -334,26 +365,36 @@ fun HomeScreen(
                             )
                         }
                         is UiState.Success -> {
-                            when (selectedTab) {
-                                HomeTab.CHATS -> {
-                                    ChatsTabContent(
-                                        data = state.data,
-                                        onConversationClick = { viewModel.onConversationClicked(it) },
-                                        onFindUsersClick = { viewModel.selectTab(HomeTab.SEARCH) }
-                                    )
-                                }
-                                HomeTab.SEARCH -> {
-                                    val searchViewModel: UserSearchViewModel = hiltViewModel()
-                                    UserSearchScreen(viewModel = searchViewModel)
-                                }
-                                HomeTab.PROFILE -> {
-                                    ProfileTabContent(user = state.data.currentUser)
-                                }
-                                HomeTab.SETTINGS -> {
-                                    SettingsTabContent(
-                                        onLogoutClick = { viewModel.logout() },
-                                        isHardwareKeystoreActive = state.data.isHardwareKeystoreActive
-                                    )
+                            AnimatedContent(
+                                targetState = selectedTab,
+                                transitionSpec = {
+                                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                                        scaleIn(initialScale = 0.96f, animationSpec = tween(220, delayMillis = 90)))
+                                        .togetherWith(fadeOut(animationSpec = tween(90)))
+                                },
+                                label = "HomeTabContentAnimation"
+                            ) { tab ->
+                                when (tab) {
+                                    HomeTab.CHATS -> {
+                                        ChatsTabContent(
+                                            data = state.data,
+                                            onConversationClick = { viewModel.onConversationClicked(it) },
+                                            onFindUsersClick = { viewModel.selectTab(HomeTab.SEARCH) }
+                                        )
+                                    }
+                                    HomeTab.SEARCH -> {
+                                        val searchViewModel: UserSearchViewModel = hiltViewModel()
+                                        UserSearchScreen(viewModel = searchViewModel)
+                                    }
+                                    HomeTab.PROFILE -> {
+                                        ProfileTabContent(user = state.data.currentUser)
+                                    }
+                                    HomeTab.SETTINGS -> {
+                                        SettingsTabContent(
+                                            onLogoutClick = { viewModel.logout() },
+                                            isHardwareKeystoreActive = state.data.isHardwareKeystoreActive
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -441,6 +482,7 @@ private fun DrawerHeader(user: User?) {
 
 // ======================== TAB 1: CHATS CONTENT ========================
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun ChatsTabContent(
     data: HomeDashboardData,
@@ -547,7 +589,8 @@ private fun ChatsTabContent(
             items(data.conversations, key = { it.id }) { conversation ->
                 ConversationRow(
                     conversation = conversation,
-                    onClick = { onConversationClick(conversation.id) }
+                    onClick = { onConversationClick(conversation.id) },
+                    modifier = Modifier.animateItemPlacement()
                 )
             }
         }
@@ -557,16 +600,20 @@ private fun ChatsTabContent(
 @Composable
 private fun ConversationRow(
     conversation: Conversation,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    CryptoraCard(modifier = Modifier.clickable { onClick() }) {
+    CryptoraCard(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
             CryptoraAvatar(
-                name = conversation.participantUser.username,
-                size = 46.dp,
+                name = conversation.participantUser.fullName.ifBlank { conversation.participantUser.username },
+                size = 48.dp,
                 isKeyVerified = true
             )
 
@@ -578,13 +625,47 @@ private fun ConversationRow(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "@${conversation.participantUser.username}",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = CryptoraColors.TextPrimary
-                    )
-                    CryptoraSecureBadge(text = "E2EE")
+                    Column(modifier = Modifier.weight(1f, fill = false)) {
+                        Text(
+                            text = conversation.participantUser.fullName.ifBlank { conversation.participantUser.username },
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = CryptoraColors.TextPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "@${conversation.participantUser.username}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = CryptoraColors.ElectricCyan,
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CryptoraSecureBadge(text = "E2EE")
+                        if (conversation.unreadCount > 0) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(CryptoraColors.ElectricCyan)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "${conversation.unreadCount}",
+                                    color = CryptoraColors.DeepNavyBackground,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(CryptoraDimens.PaddingQuarter))
@@ -593,7 +674,8 @@ private fun ConversationRow(
                     text = conversation.lastMessage?.encryptedContentBase64?.let { "Encrypted payload • End-to-End Encrypted" } ?: "Secure session established",
                     style = MaterialTheme.typography.bodySmall,
                     color = CryptoraColors.TextSecondary,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

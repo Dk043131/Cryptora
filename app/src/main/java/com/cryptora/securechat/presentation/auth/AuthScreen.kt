@@ -3,6 +3,7 @@ package com.cryptora.securechat.presentation.auth
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -278,14 +279,83 @@ private fun LoginSection(
 
                 Spacer(modifier = Modifier.height(CryptoraDimens.PaddingDefault))
 
-                // One-Tap Demo Account Quick Fill
-                CryptoraOutlinedButton(
-                    text = "⚡ Fill Demo Account (deepak)",
-                    onClick = {
-                        viewModel.onLoginUsernameChanged("deepak")
-                        viewModel.onLoginPasswordChanged("Password123!")
-                    }
+                Text(
+                    text = "Quick Demo Accounts (1-Tap Fill & Unlock):",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = CryptoraColors.TextSecondary
                 )
+
+                Spacer(modifier = Modifier.height(CryptoraDimens.PaddingHalf))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val row1 = listOf(
+                        Triple("deepak", "🛡️ Deepak", "Password123!"),
+                        Triple("dk", "⚡ DK", "Password123!")
+                    )
+                    row1.forEach { (user, label, pass) ->
+                        Surface(
+                            onClick = {
+                                viewModel.onLoginUsernameChanged(user)
+                                viewModel.onLoginPasswordChanged(pass)
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            color = CryptoraColors.SurfaceElevated,
+                            border = BorderStroke(1.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.4f)),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = label,
+                                    color = CryptoraColors.ElectricCyan,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val row2 = listOf(
+                        Triple("sarumathy", "🌸 Sarumathy", "Password123!"),
+                        Triple("karthiga", "🌟 Karthiga", "Password123!")
+                    )
+                    row2.forEach { (user, label, pass) ->
+                        Surface(
+                            onClick = {
+                                viewModel.onLoginUsernameChanged(user)
+                                viewModel.onLoginPasswordChanged(pass)
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            color = CryptoraColors.SurfaceElevated,
+                            border = BorderStroke(1.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.4f)),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = label,
+                                    color = CryptoraColors.ElectricCyan,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 

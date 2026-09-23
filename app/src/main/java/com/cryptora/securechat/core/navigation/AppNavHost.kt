@@ -1,5 +1,11 @@
 package com.cryptora.securechat.core.navigation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -53,7 +59,31 @@ fun AppNavHost(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { (it * 0.25f).toInt() },
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            ) + fadeIn(animationSpec = tween(320))
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { -(it * 0.25f).toInt() },
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            ) + fadeOut(animationSpec = tween(280))
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { -(it * 0.25f).toInt() },
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            ) + fadeIn(animationSpec = tween(320))
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { (it * 0.25f).toInt() },
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            ) + fadeOut(animationSpec = tween(280))
+        }
     ) {
         composable(Screen.Auth.route) {
             val viewModel: AuthViewModel = hiltViewModel()

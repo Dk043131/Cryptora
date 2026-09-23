@@ -50,6 +50,33 @@ class UserRepositoryImpl @Inject constructor(
             isVerified = true
         ),
         UserProfile(
+            id = "usr_dk_01",
+            username = "dk",
+            fullName = "DK",
+            avatarUrl = "⚡",
+            bio = "Cryptora Core Architecture • Enclave Lead",
+            publicKeyFingerprint = "DK:04:31:31",
+            isVerified = true
+        ),
+        UserProfile(
+            id = "usr_sarumathy_02",
+            username = "sarumathy",
+            fullName = "Sarumathy",
+            avatarUrl = "🌸",
+            bio = "Hardware Security Specialist • AES-GCM",
+            publicKeyFingerprint = "SA:RU:MA:88",
+            isVerified = true
+        ),
+        UserProfile(
+            id = "usr_karthiga_03",
+            username = "karthiga",
+            fullName = "Karthiga",
+            avatarUrl = "🌟",
+            bio = "Quantum Key Distribution Contributor",
+            publicKeyFingerprint = "KA:RT:HI:99",
+            isVerified = true
+        ),
+        UserProfile(
             id = "usr_alex_02",
             username = "alex_rivera",
             fullName = "Alex Rivera",
