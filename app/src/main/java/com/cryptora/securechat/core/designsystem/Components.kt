@@ -184,13 +184,18 @@ fun CryptoraButton(
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(CryptoraDimens.PaddingHalf))
-            Text("Verifying...", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text("Please wait...", color = contentColor, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
         } else {
             if (icon != null) {
-                Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(imageVector = icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(CryptoraDimens.PaddingHalf))
             }
-            Text(text = text, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text(
+                text = text,
+                color = contentColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp
+            )
         }
     }
 }

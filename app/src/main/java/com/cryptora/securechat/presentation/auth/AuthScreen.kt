@@ -112,6 +112,29 @@ fun AuthScreen(
                         }
                     }
                 },
+                actions = {
+                    if (state.mode == AuthMode.REGISTER) {
+                        TextButton(
+                            onClick = {
+                                when (state.registerStep) {
+                                    RegisterStep.NAME_USERNAME -> viewModel.submitStep1()
+                                    RegisterStep.MOBILE_NUMBER -> viewModel.submitSendOtp()
+                                    RegisterStep.OTP_VERIFICATION -> viewModel.submitVerifyOtp()
+                                    RegisterStep.PASSWORD_CREATION -> viewModel.submitPasswordStep()
+                                    RegisterStep.PROFILE_SETUP -> viewModel.submitCompleteRegistration()
+                                }
+                            },
+                            enabled = !state.isLoading
+                        ) {
+                            Text(
+                                text = if (state.registerStep == RegisterStep.PROFILE_SETUP) "Done" else "Next",
+                                color = CryptoraColors.ElectricCyan,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CryptoraColors.DeepNavyBackground
                 )
@@ -387,7 +410,7 @@ private fun StepNameUsername(viewModel: AuthViewModel, state: AuthUiState) {
         Spacer(modifier = Modifier.height(CryptoraDimens.PaddingLarge))
 
         CryptoraButton(
-            text = "Continue",
+            text = "Next ➔",
             onClick = { viewModel.submitStep1() }
         )
     }
@@ -463,7 +486,7 @@ private fun StepMobileNumber(viewModel: AuthViewModel, state: AuthUiState) {
         Spacer(modifier = Modifier.height(CryptoraDimens.PaddingLarge))
 
         CryptoraButton(
-            text = "Send Verification Code",
+            text = "Next: Send Verification Code ➔",
             isLoading = state.isLoading,
             onClick = { viewModel.submitSendOtp() }
         )
@@ -564,7 +587,7 @@ private fun StepOtpVerification(viewModel: AuthViewModel, state: AuthUiState) {
         Spacer(modifier = Modifier.height(CryptoraDimens.PaddingLarge))
 
         CryptoraButton(
-            text = "Verify Code",
+            text = "Next: Verify Code ➔",
             isLoading = state.isLoading,
             onClick = { viewModel.submitVerifyOtp() }
         )
@@ -621,7 +644,7 @@ private fun StepPasswordCreation(viewModel: AuthViewModel, state: AuthUiState) {
         Spacer(modifier = Modifier.height(CryptoraDimens.PaddingLarge))
 
         CryptoraButton(
-            text = "Continue to Profile",
+            text = "Next: Setup Profile ➔",
             onClick = { viewModel.submitPasswordStep() }
         )
     }

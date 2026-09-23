@@ -91,7 +91,7 @@ val CryptoraTypography = Typography(
         fontWeight = FontWeight.SemiBold,
         fontSize = 13.sp,
         lineHeight = 18.sp,
-        color = CryptoraColors.ElectricCyan
+        color = androidx.compose.ui.graphics.Color.Unspecified
     ),
     labelMedium = TextStyle(
         fontFamily = FontFamily.Default,
