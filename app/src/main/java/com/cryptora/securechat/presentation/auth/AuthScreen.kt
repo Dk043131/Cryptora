@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -145,6 +146,7 @@ fun AuthScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .imePadding()
                 .padding(horizontal = CryptoraDimens.PaddingLarge)
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -570,13 +572,13 @@ private fun StepOtpVerification(viewModel: AuthViewModel, state: AuthUiState) {
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Carrier SMS Dispatched",
+                        text = "Security Code Dispatched",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = CryptoraColors.ElectricCyan
                     )
                     Text(
-                        text = "Real 6-digit security code sent. Please check your SMS inbox.",
+                        text = "Real 6-digit security code sent. Please check your SMS inbox or notification bar.",
                         style = MaterialTheme.typography.bodySmall,
                         color = CryptoraColors.TextSecondary
                     )

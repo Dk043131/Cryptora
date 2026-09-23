@@ -123,23 +123,18 @@ fun CryptoraBrandLogo(
             )
         }
 
-        // Inner Shield Emblem Container
+        // Official Cryptora Vector Security Emblem
         Box(
             modifier = Modifier
-                .size(size * 0.85f)
-                .clip(RoundedCornerShape(CryptoraDimens.CornerMedium))
-                .background(CryptoraColors.SurfaceElevated)
-                .border(
-                    BorderStroke(1.5.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.8f)),
-                    RoundedCornerShape(CryptoraDimens.CornerMedium)
-                ),
+                .size(size * 0.9f)
+                .clip(RoundedCornerShape(CryptoraDimens.CornerMedium)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painterResource(id = R.drawable.ic_cryptora_logo),
                 contentDescription = "Cryptora Security Emblem",
-                tint = CryptoraColors.ElectricCyan,
-                modifier = Modifier.size(size * 0.55f)
+                tint = Color.Unspecified,
+                modifier = Modifier.size(size * 0.85f)
             )
         }
     }

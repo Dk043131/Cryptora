@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Outer Security Shield -->
+    <path
+        android:pathData="M50,6 L88,22 C88,54 50,94 50,94 C50,94 12,54 12,22 Z"
+        android:strokeWidth="3.5"
+        android:strokeColor="#00F0FF"
+        android:fillColor="#101A30"
+        android:strokeLineJoin="round" />
+
+    <!-- Inner Shield Circuit Border -->
+    <path
+        android:pathData="M50,14 L80,27 C80,51 50,84 50,84 C50,84 20,51 20,27 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#3300F0FF"
+        android:fillColor="#172442"
+        android:strokeLineJoin="round" />
+
+    <!-- Padlock Shackle -->
+    <path
+        android:pathData="M40,42 V33 C40,27.5 44.5,23 50,23 C55.5,23 60,27.5 60,33 V42"
+        android:strokeWidth="4"
+        android:strokeColor="#00F0FF"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round" />
+
+    <!-- Padlock Body -->
+    <path
+        android:pathData="M33,42 H67 V66 H33 Z"
+        android:fillColor="#00F0FF" />
+
+    <!-- Keyhole -->
+    <path
+        android:pathData="M50,49 C48.34,49 47,50.34 47,52 C47,53.2 47.71,54.23 48.73,54.7 L47.5,60 H52.5 L51.27,54.7 C52.29,54.23 53,53.2 53,52 C53,50.34 51.66,49 50,49 Z"
+        android:fillColor="#080D1A" />
+
+    <!-- Cyber Circuit Nodes -->
+    <path
+        android:pathData="M50,6 L50,14 M88,22 L80,27 M12,22 L20,27"
+        android:strokeWidth="2"
+        android:strokeColor="#00F0FF" />
+</vector>
