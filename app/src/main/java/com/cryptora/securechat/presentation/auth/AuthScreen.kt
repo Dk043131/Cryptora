@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cryptora.securechat.core.designsystem.CryptoraBrandLogo
 import com.cryptora.securechat.core.designsystem.CryptoraButton
+import com.cryptora.securechat.core.designsystem.CryptoraOutlinedButton
 import com.cryptora.securechat.core.designsystem.CryptoraCard
 import com.cryptora.securechat.core.designsystem.CryptoraColors
 import com.cryptora.securechat.core.designsystem.CryptoraDimens
@@ -273,6 +274,17 @@ private fun LoginSection(
                     onClick = { viewModel.submitLogin() },
                     isLoading = state.isLoading,
                     icon = Icons.Default.Security
+                )
+
+                Spacer(modifier = Modifier.height(CryptoraDimens.PaddingDefault))
+
+                // One-Tap Demo Account Quick Fill
+                CryptoraOutlinedButton(
+                    text = "⚡ Fill Demo Account (deepak)",
+                    onClick = {
+                        viewModel.onLoginUsernameChanged("deepak")
+                        viewModel.onLoginPasswordChanged("Password123!")
+                    }
                 )
             }
         }

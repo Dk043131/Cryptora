@@ -21,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Serializable
-private data class PersistedAccount(
+internal data class PersistedAccount(
     val id: String,
     val username: String,
     val fullName: String,

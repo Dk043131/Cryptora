@@ -32,6 +32,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var restoreSessionUseCase: RestoreSessionUseCase
 
+    @Inject
+    lateinit var demoDataSeeder: com.cryptora.securechat.core.demo.DemoDataSeeder
+
     private val startDestination = MutableStateFlow<String?>(null)
 
     private val notificationPermissionLauncher = registerForActivityResult(
@@ -48,6 +51,9 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
+            // Seed rich demo conversations, encrypted notes, and access requests
+            demoDataSeeder.seedAllDemoData()
+
             val sessionResult = restoreSessionUseCase()
             val user = sessionResult.getOrNull()
             startDestination.value = if (user != null) {
