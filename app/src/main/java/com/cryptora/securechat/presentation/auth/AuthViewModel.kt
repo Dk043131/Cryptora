@@ -71,6 +71,7 @@ class AuthViewModel @Inject constructor(
     private val checkUsernameAvailabilityUseCase: CheckUsernameAvailabilityUseCase,
     private val registerUserUseCase: RegisterUserUseCase,
     private val loginUserUseCase: LoginUserUseCase,
+    private val otpProvider: com.cryptora.securechat.core.network.otp.OtpProvider,
     navigator: AppNavigator,
     dispatchers: DispatcherProvider
 ) : BaseViewModel(dispatchers, navigator) {
@@ -81,6 +82,19 @@ class AuthViewModel @Inject constructor(
     private var countdownJob: Job? = null
 
     val avatarOptions = listOf("🛡️", "🔒", "⚡", "🚀", "👤", "💼", "🌐", "🦊")
+
+    init {
+        viewModelScope.launch {
+            if (otpProvider is com.cryptora.securechat.core.network.otp.FirebasePhoneOtpProvider) {
+                otpProvider.autoDetectedSmsCode.collect { autoCode ->
+                    if (!autoCode.isNullOrBlank() && _uiState.value.registerStep == RegisterStep.OTP_VERIFICATION) {
+                        onOtpChanged(autoCode)
+                        otpProvider.clearAutoDetectedCode()
+                    }
+                }
+            }
+        }
+    }
 
     fun switchMode(mode: AuthMode) {
         _uiState.update {

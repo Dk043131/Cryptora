@@ -92,11 +92,8 @@ class ProductionSmsProvider @Inject constructor(
         delay(150) // Simulated cryptographic verification handshake
 
         val cleanOtp = otp.trim()
-
-        // Developer / test bypass: Always accept standard test OTP 123456
-        if (cleanOtp == "123456" || cleanOtp == lastGeneratedOtp) {
-            activeSessions.remove(sessionId)
-            return Resource.Success(true)
+        if (cleanOtp.length != 6) {
+            return Resource.Error(AppError.Validation("Verification code must be 6 digits"))
         }
 
         val session = activeSessions[sessionId]

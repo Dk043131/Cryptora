@@ -527,39 +527,37 @@ private fun StepOtpVerification(viewModel: AuthViewModel, state: AuthUiState) {
 
         Spacer(modifier = Modifier.height(CryptoraDimens.PaddingDefault))
 
-        // Quick Fill & Test OTP Banner
+        // Carrier SMS Notice
         Surface(
             shape = RoundedCornerShape(CryptoraDimens.CornerMedium),
-            color = CryptoraColors.ElectricCyan.copy(alpha = 0.12f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, CryptoraColors.ElectricCyan.copy(alpha = 0.4f)),
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .clickable { viewModel.onOtpChanged("123456") }
+            color = CryptoraColors.SurfaceNavy,
+            border = androidx.compose.foundation.BorderStroke(1.dp, CryptoraColors.BorderSubtle),
+            modifier = Modifier.fillMaxWidth(0.9f)
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(
+                    imageVector = Icons.Default.Phone,
+                    contentDescription = "SMS Verification",
+                    tint = CryptoraColors.ElectricCyan,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "🔐 Instant Verification Code",
+                        text = "Carrier SMS Dispatched",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = CryptoraColors.ElectricCyan
                     )
                     Text(
-                        text = "Use code: 123456 (or check notification)",
+                        text = "Real 6-digit security code sent. Please check your SMS inbox.",
                         style = MaterialTheme.typography.bodySmall,
                         color = CryptoraColors.TextSecondary
                     )
                 }
-                Text(
-                    text = "Tap to Fill ⚡",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = CryptoraColors.ElectricCyan
-                )
             }
         }
 
